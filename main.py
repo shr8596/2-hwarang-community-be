@@ -1,14 +1,6 @@
 from fastapi import FastAPI
+from routes.users.user_router import router as user_router
 
 app = FastAPI()
 
-@app.get("/")
-def read_root():
-	return {"message": "Hello, adepterz!"}
-
-@app.post("/user")
-def read_root(user_name: str):
-	return {
-		"message": "Hello, adepterz!",
-		"name": f"{user_name}",
-	}
+app.include_router(user_router, tags=["users"])
