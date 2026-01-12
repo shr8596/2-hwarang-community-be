@@ -4,7 +4,7 @@ from controllers.users import user_controller
 router = APIRouter()
 
 
-# 특정 사용자 상세 조회
+# 회원 정보 조회
 @router.get("/me/{user_id}")
-def get_user_info(user_id: str):
+def read_user_info(user_id: str):
     return user_controller.get_user_info(user_id)
