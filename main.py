@@ -1,11 +1,12 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.sessions import SessionMiddleware
 import uvicorn
 from routes import api_router
 
 app = FastAPI()
 
-# CORS 설정(필수 미들웨어)
+# CORS 설정
 # 각다른 도메인에서 실행되는 프론트엔드(React, Vue 등)가 이 API를 호출할 수 있도록 허용
 app.add_middleware(
     CORSMiddleware,
@@ -20,6 +21,16 @@ app.add_middleware(
     allow_credentials=True,           # 쿠키/인증 정보 허용
     allow_methods=["*"],              # 모든 HTTP 메서드 허용 (GET, POST, PUT, DELETE 등)
     allow_headers=["*"],              # 모든 헤더 허용 (Authorization, Content-Type 등)
+)
+
+# 세션 미들웨어 설정
+# 세션을 사용하여 사용자 상태를 유지하고자 할 때 필요
+app.add_middleware(
+    SessionMiddleware,
+    secret_key="yourSecretKey",
+    max_age=24 * 60 * 60,
+    same_site="lax",
+    https_only=False,
 )
 
 app.include_router(api_router)
