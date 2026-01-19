@@ -51,4 +51,14 @@ async def update_nickname(user_id: str, request: Request):
 async def update_profile_image_url(user_id: str, request: Request):
     return await user_controller.update_user_profile_image_url(user_id, request)
 
+# 회원 이메일 중복 확인
+@router.post("/available/email", dependencies=[Depends(require_post), Depends(rate_limiter)])
+async def check_email_duplicate(request: Request):
+    return await user_controller.check_email_duplicate(request)
+
+# 회원 닉네임 중복 확인
+@router.post("/available/user-nickname", dependencies=[Depends(require_post), Depends(rate_limiter)])
+async def check_nickname_duplicate(request: Request):
+    return await user_controller.check_nickname_duplicate(request)
+
 
