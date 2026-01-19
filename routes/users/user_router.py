@@ -13,7 +13,12 @@ async def login(request: Request):
 async def logout(request: Request):
     return await user_controller.logout_user(request)
 
+# 회원 탈퇴
+@router.delete("/user/me/{user_id}")
+async def withdraw(user_id: str, request: Request):
+    return await user_controller.delete_user(user_id, request)
+
 # 회원 정보 조회
-@router.get("/me/{user_id}")
-def read_user_info(user_id: str):
-    return user_controller.get_user_info(user_id)
+@router.get("/user/me/{user_id}")
+async def read_user_info(user_id: str, request: Request):
+    return await user_controller.read_user(user_id, request)
