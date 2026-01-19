@@ -1,7 +1,7 @@
 from fastapi import HTTPException
 from utils.response_schema import response_schema
 import utils.error_message
-from utils.validator import email_validator, password_validator
+from utils.validator import email_validator, password_validator, nickname_validator
 
 
 def validate_email(email) -> str:
@@ -84,3 +84,49 @@ def validate_user_id(user_id) -> str:
             ),
         )
     return user_id
+
+def validate_nickname(nickname) -> str:
+    if nickname is None: # 400 - 닉네임 누락
+        raise HTTPException(
+            status_code=400,
+            detail=response_schema(
+                message=utils.error_message.missing_required_field,
+                data=None,
+            ),
+        )
+    if not isinstance(nickname, str): # 400 - 닉네임 자료형 안맞음
+        raise HTTPException(
+            status_code=400,
+            detail=response_schema(
+                message=utils.error_message.invalid_input("parameter"),
+                data=None,
+            ),
+        )
+    if not nickname_validator.validate_nickname(nickname): # 422 - 닉네임 형식 잘못됨
+        raise HTTPException(
+            status_code=422,
+            detail=response_schema(
+                message=utils.error_message.invalid_input_format("nickname"),
+                data=None,
+            ),
+        )
+    return nickname
+
+def validate_profile_image_url(profile_image_url) -> str:
+    if profile_image_url is None: # 400 - 프로필 이미지 URL 누락
+        raise HTTPException(
+            status_code=400,
+            detail=response_schema(
+                message=utils.error_message.missing_required_field,
+                data=None,
+            ),
+        )
+    if not isinstance(profile_image_url, str): # 400 - 프로필 이미지 URL 자료형 안맞음
+        raise HTTPException(
+            status_code=400,
+            detail=response_schema(
+                message=utils.error_message.invalid_input("parameter"),
+                data=None,
+            ),
+        )
+    return profile_image_url
