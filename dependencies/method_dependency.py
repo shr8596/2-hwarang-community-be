@@ -22,4 +22,5 @@ def _create_method_checker(allowed_method: str):
 require_post    = _create_method_checker(utils.constants.HTTP_METHOD_POST)
 require_get     = _create_method_checker(utils.constants.HTTP_METHOD_GET)
 require_patch   = _create_method_checker(utils.constants.HTTP_METHOD_PATCH)
+require_put     = _create_method_checker(utils.constants.HTTP_METHOD_PUT)
 require_delete  = _create_method_checker(utils.constants.HTTP_METHOD_DELETE)
