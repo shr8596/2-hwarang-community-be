@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
 
-router = APIRouter()
+router = APIRouter(prefix="/posts", tags=["posts"])
 
 
 # 게시글 작성

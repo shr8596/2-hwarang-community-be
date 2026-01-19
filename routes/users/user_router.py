@@ -4,7 +4,7 @@ from dependencies.auth_dependency import get_current_session
 from dependencies.rate_limit_dependency import rate_limiter
 from dependencies.method_dependency import require_post, require_get, require_patch, require_delete
 
-router = APIRouter()
+router = APIRouter(prefix="/users", tags=["users"])
 
 # Depends로 라우터 호출 전 405, 401, 429 에러 처리
 # 405: require_* (method_dependency)
