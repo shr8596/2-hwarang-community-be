@@ -83,6 +83,14 @@ def validate_user_id(user_id) -> str:
                 data=None,
             ),
         )
+    if int(user_id) < 0: # 422 - user_id가 음수
+        raise HTTPException(
+            status_code=422,
+            detail=response_schema(
+                message=utils.error_message.invalid_input_format("user_id"),
+                data=None,
+            ),
+        )
     return user_id
 
 def validate_nickname(nickname) -> str:
