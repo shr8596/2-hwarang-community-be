@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 from utils.response_schema import response_schema
 from utils.success_message import successfully
 import utils.error_message
-from utils.validator.request_validator import validate_title, validate_content, validate_post_image_url, validate_post_id
+from utils.validator.request_validator import validate_title, validate_content, validate_post_image_url, validate_post_id, validate_offset, validate_limit
 
 # 게시글 임시 데이터
 post_model = {
@@ -68,27 +68,13 @@ async def create_post(request: Request):
 
 # 게시글 전체 목록 조회
 # 401, 405, 429 검증은 라우터의 Depends에서 처리
-async def read_posts(request: Request, offset: str, limit: str):
+async def read_posts(request: Request, offset: int, limit: int):
 
     # 400, 422 - offset 검증
-    if not offset.isdigit():
-        raise HTTPException(
-            status_code=422,
-            detail=response_schema(
-                message=utils.error_message.invalid_input_format("offset"),
-                data=None,
-            ),
-        )
+    offset = validate_offset(offset)
 
     # 400, 422 - limit 검증
-    if not limit.isdigit():
-        raise HTTPException(
-            status_code=422,
-            detail=response_schema(
-                message=utils.error_message.invalid_input_format("limit"),
-                data=None,
-            ),
-        )
+    limit = validate_limit(limit)
 
     try:
         # TODO: 실제 DB에서 게시글 목록 조회 : 추후 구현
@@ -99,8 +85,8 @@ async def read_posts(request: Request, offset: str, limit: str):
                 data={
                     "posts": [post_model],
                     "total": 1,
-                    "offset": int(offset),
-                    "limit": int(limit),
+                    "offset": offset,
+                    "limit": limit,
                 },
             ),
         )
@@ -115,10 +101,10 @@ async def read_posts(request: Request, offset: str, limit: str):
 
 # 게시글 상세 조회
 # 401, 405, 429 검증은 라우터의 Depends에서 처리
-async def read_post(post_id: str, request: Request):
+async def read_post(post_id: int, request: Request):
 
     # 400, 422 - post_id 검증
-    validate_post_id(post_id)
+    post_id = validate_post_id(post_id)
 
     try:
         # TODO: 실제 DB에서 게시글 조회 : 추후 구현
@@ -140,11 +126,11 @@ async def read_post(post_id: str, request: Request):
 
 # 게시글 수정
 # 405, 429 검증은 라우터의 Depends에서 처리
-async def update_post(post_id: str, request: Request):
+async def update_post(post_id: int, request: Request):
     body = await request.json()
 
     # 400, 422 - post_id 검증
-    validate_post_id(post_id)
+    post_id = validate_post_id(post_id)
 
     # 400, 422 - title 검증
     title = validate_title(body.get("title"))
@@ -196,10 +182,10 @@ async def update_post(post_id: str, request: Request):
 
 # 게시글 삭제
 # 401, 405, 429 검증은 라우터의 Depends에서 처리
-async def delete_post(post_id: str, request: Request):
+async def delete_post(post_id: int, request: Request):
 
     # 400, 422 - post_id 검증
-    validate_post_id(post_id)
+    post_id = validate_post_id(post_id)
 
     # 403
     # TODO: 본인이 작성한 게시글이 아닌 경우 권한 없음 : 추후 구현
@@ -227,10 +213,10 @@ async def delete_post(post_id: str, request: Request):
 
 # 게시글 좋아요 추가
 # 401, 405, 429 검증은 라우터의 Depends에서 처리
-async def like_post(post_id: str, request: Request):
+async def like_post(post_id: int, request: Request):
 
     # 400, 422 - post_id 검증
-    validate_post_id(post_id)
+    post_id = validate_post_id(post_id)
 
     # 403
     # TODO: 이미 좋아요를 누른 경우 : 추후 구현
@@ -258,10 +244,10 @@ async def like_post(post_id: str, request: Request):
 
 # 게시글 좋아요 제거
 # 401, 405, 429 검증은 라우터의 Depends에서 처리
-async def unlike_post(post_id: str, request: Request):
+async def unlike_post(post_id: int, request: Request):
 
     # 400, 422 - post_id 검증
-    validate_post_id(post_id)
+    post_id = validate_post_id(post_id)
 
     # 403
     # TODO: 좋아요를 누르지 않은 경우 : 추후 구현

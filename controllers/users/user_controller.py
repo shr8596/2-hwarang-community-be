@@ -32,6 +32,20 @@ async def create_user(request: Request):
     # 400, 422 - 닉네임 검증
     nickname = validate_nickname(body.get("nickname"))
 
+    # 400, 422 - 프로필 이미지 URL 검증 (선택적)
+    profile_image_url = body.get("profileImageUrl")
+    if profile_image_url is not None:
+        # None이 아니면 유효성 검사
+        if not isinstance(profile_image_url, str):
+            raise HTTPException(
+                status_code=400,
+                detail=response_schema(
+                    message=utils.error_message.invalid_input("parameter"),
+                    data=None,
+                ),
+            )
+        profile_image_url = validate_profile_image_url(profile_image_url)
+
     # 409
     # TODO: 실제 DB에서 이메일 중복 확인 : 추후 구현
 
@@ -122,10 +136,10 @@ async def logout_user(request: Request):
 
 # 회원 탈퇴
 # 401, 405, 429 검증은 라우터의 Depends에서 처리
-async def delete_user(user_id: str, request: Request):
+async def delete_user(user_id: int, request: Request):
 
     # 400, 422 - user_id 검증
-    validate_user_id(user_id)
+    user_id = validate_user_id(user_id)
 
     try:
         # TODO: 실제 DB에서 사용자 삭제 : 추후 구현
@@ -148,10 +162,10 @@ async def delete_user(user_id: str, request: Request):
 
 # 회원 정보 조회
 # 401, 405, 429 검증은 라우터의 Depends에서 처리
-async def read_user(user_id: str, request: Request):
+async def read_user(user_id: int, request: Request):
 
     # 400, 422 - user_id 검증
-    validate_user_id(user_id)
+    user_id = validate_user_id(user_id)
 
     try:
         # TODO: 실제 DB에서 사용자 정보 조회 : 추후 구현
@@ -173,12 +187,12 @@ async def read_user(user_id: str, request: Request):
 
 # 회원 정보 수정(비밀번호)
 # 401, 405, 429 검증은 라우터의 Depends에서 처리
-async def update_user_password(user_id: str, request: Request):
+async def update_user_password(user_id: int, request: Request):
 
     body = await request.json()
 
     # 400, 422 - user_id 검증
-    validate_user_id(user_id)
+    user_id = validate_user_id(user_id)
 
     # 400, 422 - 새 비밀번호 검증
     password = validate_password(body.get("password"))
@@ -209,11 +223,11 @@ async def update_user_password(user_id: str, request: Request):
 
 # 회원 정보 수정(닉네임)
 # 401, 405, 429 검증은 라우터의 Depends에서 처리
-async def update_user_nickname(user_id: str, request: Request):
+async def update_user_nickname(user_id: int, request: Request):
     body = await request.json()
 
     # 400, 422 - user_id 검증
-    validate_user_id(user_id)
+    user_id = validate_user_id(user_id)
 
     # 400, 422 - 닉네임 검증
     nickname = validate_nickname(body.get("nickname"))
@@ -244,11 +258,11 @@ async def update_user_nickname(user_id: str, request: Request):
 
 # 회원 정보 수정(프로필 이미지 URL)
 # 401, 405, 429 검증은 라우터의 Depends에서 처리
-async def update_user_profile_image_url(user_id: str, request: Request):
+async def update_user_profile_image_url(user_id: int, request: Request):
     body = await request.json()
 
     # 400, 422 - user_id 검증
-    validate_user_id(user_id)
+    user_id = validate_user_id(user_id)
 
     # 400, 422 - 프로필 이미지 URL 검증 (선택적)
     profile_image_url = body.get("profileImageUrl")

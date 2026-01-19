@@ -54,7 +54,7 @@ async def logout(request: Request):
         Depends(rate_limiter),
     ]
 )
-async def withdraw(user_id: str, request: Request):
+async def withdraw(user_id: int, request: Request):
     return await user_controller.delete_user(user_id, request)
 
 # 회원 정보 조회
@@ -66,7 +66,7 @@ async def withdraw(user_id: str, request: Request):
         Depends(rate_limiter),
     ]
 )
-async def read_user_info(user_id: str, request: Request):
+async def read_user_info(user_id: int, request: Request):
     return await user_controller.read_user(user_id, request)
 
 # 회원 정보 수정(비밀번호)
@@ -78,7 +78,7 @@ async def read_user_info(user_id: str, request: Request):
         Depends(rate_limiter),
     ]
 )
-async def update_password(user_id: str, request: Request):
+async def update_password(user_id: int, request: Request):
     return await user_controller.update_user_password(user_id, request)
 
 # 회원 정보 수정(닉네임)
@@ -90,7 +90,7 @@ async def update_password(user_id: str, request: Request):
         Depends(rate_limiter),
     ]
 )
-async def update_nickname(user_id: str, request: Request):
+async def update_nickname(user_id: int, request: Request):
     return await user_controller.update_user_nickname(user_id, request)
 
 # 회원 정보 수정(프로필 이미지 URL)
@@ -102,7 +102,7 @@ async def update_nickname(user_id: str, request: Request):
         Depends(rate_limiter),
     ]
 )
-async def update_profile_image_url(user_id: str, request: Request):
+async def update_profile_image_url(user_id: int, request: Request):
     return await user_controller.update_user_profile_image_url(user_id, request)
 
 # 회원 이메일 중복 확인

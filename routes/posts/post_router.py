@@ -27,7 +27,7 @@ async def create_post(request: Request):
         Depends(rate_limiter),
     ]
 )
-async def read_posts(request: Request, offset: str = "0", limit: str = "10"):
+async def read_posts(request: Request, offset: int = 0, limit: int = 10):
     return await post_controller.read_posts(request, offset, limit)
 
 # 게시글 상세 조회
@@ -39,7 +39,7 @@ async def read_posts(request: Request, offset: str = "0", limit: str = "10"):
         Depends(rate_limiter),
     ]
 )
-async def read_post(post_id: str, request: Request):
+async def read_post(post_id: int, request: Request):
     return await post_controller.read_post(post_id, request)
 
 # 게시글 수정
@@ -51,7 +51,7 @@ async def read_post(post_id: str, request: Request):
         Depends(rate_limiter),
     ]
 )
-async def update_post(post_id: str, request: Request):
+async def update_post(post_id: int, request: Request):
     return await post_controller.update_post(post_id, request)
 
 # 게시글 삭제
@@ -63,7 +63,7 @@ async def update_post(post_id: str, request: Request):
         Depends(rate_limiter),
     ]
 )
-async def delete_post(post_id: str, request: Request):
+async def delete_post(post_id: int, request: Request):
     return await post_controller.delete_post(post_id, request)
 
 # 게시글 좋아요 추가
@@ -75,7 +75,7 @@ async def delete_post(post_id: str, request: Request):
         Depends(rate_limiter),
     ]
 )
-async def like_post(post_id: str, request: Request):
+async def like_post(post_id: int, request: Request):
     return await post_controller.like_post(post_id, request)
 
 # 게시글 좋아요 제거
@@ -87,6 +87,6 @@ async def like_post(post_id: str, request: Request):
         Depends(rate_limiter),
     ]
 )
-async def unlike_post(post_id: str, request: Request):
+async def unlike_post(post_id: int, request: Request):
     return await post_controller.unlike_post(post_id, request)
 
