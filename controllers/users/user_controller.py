@@ -19,9 +19,8 @@ user_model =  {
 }
 
 # 회원가입
+# 405, 429 검증은 라우터의 Depends에서 처리
 async def create_user(request: Request):
-    # 405, 429 검증은 라우터의 Depends에서 처리
-
     body = await request.json()
 
     # 400, 422 - 이메일 검증
@@ -34,22 +33,10 @@ async def create_user(request: Request):
     nickname = validate_nickname(body.get("nickname"))
 
     # 409
-    # TODO: 실제 DB에서 이메일 중복 확인
-    # existing_user = await db.get_user_by_email(email)
-    # if existing_user:
-    #     raise HTTPException(
-    #         status_code=409,
-    #         detail=response_schema(
-    #             message=utils.error_message.is_already_in_use("email"),
-    #             data=None,
-    #         ),
-    #     )
+    # TODO: 실제 DB에서 이메일 중복 확인 : 추후 구현
 
     try:
-        # TODO: 실제 DB에 사용자 생성
-        # hashed_password = hash_password(password)
-        # new_user = await db.create_user(email=email, password=hashed_password, nickname=nickname)
-
+        # TODO: 실제 DB에 사용자 생성 : 추후 구현
         # 임시 세션 생성
         session_id = str(uuid.uuid4())
         request.session["sessionID"] = session_id
@@ -75,12 +62,9 @@ async def create_user(request: Request):
             ),
         )
 
-
-
 # 회원 로그인
+# 405, 429 검증은 라우터의 Depends에서 처리
 async def login_user(request: Request):
-    # 405, 429 검증은 라우터의 Depends에서 처리
-
     body = await request.json()
 
     # 400, 422 - 이메일 검증
@@ -90,11 +74,7 @@ async def login_user(request: Request):
     password = validate_password(body.get("password"))
 
     try:
-        # TODO: 실제 DB에서 사용자 인증 및 조회
-        # user = await db.get_user_by_email(email)
-        # if not user or not verify_password(password, user.hashed_password):
-        #     raise HTTPException(status_code=401, detail="Invalid credentials")
-
+        # TODO: 실제 DB에서 사용자 인증 및 조회 : 추후 구현
         # 로그인 성공 시 세션 생성
         session_id = str(uuid.uuid4())
         request.session["sessionID"] = session_id
@@ -120,9 +100,8 @@ async def login_user(request: Request):
         )
 
 # 회원 로그아웃
+# 401, 405, 429 검증은 라우터의 Depends에서 처리
 async def logout_user(request: Request):
-    # 401, 405, 429 검증은 라우터의 Depends에서 처리
-
     try:
         request.session.clear()
         return JSONResponse(
@@ -142,14 +121,14 @@ async def logout_user(request: Request):
         )
 
 # 회원 탈퇴
+# 401, 405, 429 검증은 라우터의 Depends에서 처리
 async def delete_user(user_id: str, request: Request):
-    # 401, 405, 429 검증은 라우터의 Depends에서 처리
 
     # 400, 422 - user_id 검증
     validate_user_id(user_id)
 
     try:
-        # TODO: 실제 DB에서 사용자 삭제는 추후 구현
+        # TODO: 실제 DB에서 사용자 삭제 : 추후 구현
         request.session.clear()
         return JSONResponse(
             status_code=200,
@@ -168,14 +147,14 @@ async def delete_user(user_id: str, request: Request):
         )
 
 # 회원 정보 조회
+# 401, 405, 429 검증은 라우터의 Depends에서 처리
 async def read_user(user_id: str, request: Request):
-    # 401, 405, 429 검증은 라우터의 Depends에서 처리
 
     # 400, 422 - user_id 검증
     validate_user_id(user_id)
 
     try:
-        # TODO: 실제 DB에서 사용자 정보 조회는 추후 구현
+        # TODO: 실제 DB에서 사용자 정보 조회 : 추후 구현
         return JSONResponse(
             status_code=200,
             content=response_schema(
@@ -193,8 +172,8 @@ async def read_user(user_id: str, request: Request):
         )
 
 # 회원 정보 수정(비밀번호)
+# 401, 405, 429 검증은 라우터의 Depends에서 처리
 async def update_user_password(user_id: str, request: Request):
-    # 401, 405, 429 검증은 라우터의 Depends에서 처리
 
     body = await request.json()
 
@@ -205,13 +184,13 @@ async def update_user_password(user_id: str, request: Request):
     password = validate_password(body.get("password"))
 
     # 403
-    # TODO : 본인이 아닌 다른 사용자의 정보 수정 시도 시 권한 없음
+    # TODO : 본인이 아닌 다른 사용자의 정보 수정 시도 시 권한 없음 : 추후 구현
 
     # 404
-    # TODO : 존재하지 않는 사용자 또는 탈퇴한 사용자인 경우
+    # TODO : 존재하지 않는 사용자 또는 탈퇴한 사용자인 경우 : 추후 구현
 
     try:
-        # TODO: 실제 DB에서 비밀번호 업데이트는 추후 구현
+        # TODO: 실제 DB에서 비밀번호 업데이트 : 추후 구현
         return JSONResponse(
             status_code=200,
             content=response_schema(
@@ -229,9 +208,8 @@ async def update_user_password(user_id: str, request: Request):
         )
 
 # 회원 정보 수정(닉네임)
+# 401, 405, 429 검증은 라우터의 Depends에서 처리
 async def update_user_nickname(user_id: str, request: Request):
-    # 401, 405, 429 검증은 라우터의 Depends에서 처리
-
     body = await request.json()
 
     # 400, 422 - user_id 검증
@@ -241,13 +219,13 @@ async def update_user_nickname(user_id: str, request: Request):
     nickname = validate_nickname(body.get("nickname"))
 
     # 403
-    # TODO : 본인이 아닌 다른 사용자의 정보 수정 시도 시 권한 없음
+    # TODO : 본인이 아닌 다른 사용자의 정보 수정 시도 시 권한 없음 : 추후 구현
 
     # 404
-    # TODO : 존재하지 않는 사용자 또는 탈퇴한 사용자인 경우
+    # TODO : 존재하지 않는 사용자 또는 탈퇴한 사용자인 경우 : 추후 구현
 
     try:
-        # TODO: 실제 DB에서 닉네임 업데이트는 추후 구현
+        # TODO: 실제 DB에서 닉네임 업데이트 : 추후 구현
         return JSONResponse(
             status_code=200,
             content=response_schema(
@@ -265,9 +243,8 @@ async def update_user_nickname(user_id: str, request: Request):
         )
 
 # 회원 정보 수정(프로필 이미지 URL)
+# 401, 405, 429 검증은 라우터의 Depends에서 처리
 async def update_user_profile_image_url(user_id: str, request: Request):
-    # 401, 405, 429 검증은 라우터의 Depends에서 처리
-
     body = await request.json()
 
     # 400, 422 - user_id 검증
@@ -277,13 +254,13 @@ async def update_user_profile_image_url(user_id: str, request: Request):
     profile_image_url = validate_profile_image_url(body.get("profileImageUrl"))
 
     # 403
-    # TODO : 본인이 아닌 다른 사용자의 정보 수정 시도 시 권한 없음
+    # TODO : 본인이 아닌 다른 사용자의 정보 수정 시도 시 권한 없음 : 추후 구현
 
     # 404
-    # TODO : 존재하지 않는 사용자 또는 탈퇴한 사용자인 경우
+    # TODO : 존재하지 않는 사용자 또는 탈퇴한 사용자인 경우 : 추후 구현
 
     try:
-        # TODO: 실제 DB에서 프로필 이미지 URL 업데이트는 추후 구현
+        # TODO: 실제 DB에서 프로필 이미지 URL 업데이트 : 추후 구현
         return JSONResponse(
             status_code=200,
             content=response_schema(
@@ -301,7 +278,55 @@ async def update_user_profile_image_url(user_id: str, request: Request):
         )
 
 # 회원 이메일 중복 확인
-# TODO: 구현 필요
+# 405, 429 검증은 라우터의 Depends에서 처리
+async def check_email_duplicate(request: Request):
+    body = await request.json()
+
+    # 400, 422 - 이메일 검증
+    email = validate_email(body.get("email"))
+
+    try:
+        # TODO: 실제 DB에서 이메일 중복 확인 : 추후 구현
+        is_available = True
+        return JSONResponse(
+            status_code=200,
+            content=response_schema(
+                message=successfully("email_checked"),
+                data={"isAvailable": is_available},
+            ),
+        )
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail=response_schema(
+                message=utils.error_message.internal_server_error,
+                data=None,
+            ),
+        )
 
 # 회원 닉네임 중복 확인
-# TODO: 구현 필요
+# 405, 429 검증은 라우터의 Depends에서 처리
+async def check_nickname_duplicate(request: Request):
+    body = await request.json()
+
+    # 400, 422 - 닉네임 검증
+    nickname = validate_nickname(body.get("nickname"))
+
+    try:
+        # TODO: 실제 DB에서 닉네임 중복 확인 : 추후 구현
+        is_available = True
+        return JSONResponse(
+            status_code=200,
+            content=response_schema(
+                message=successfully("nickname_checked"),
+                data={"isAvailable": is_available},
+            ),
+        )
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail=response_schema(
+                message=utils.error_message.internal_server_error,
+                data=None,
+            ),
+        )
