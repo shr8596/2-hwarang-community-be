@@ -33,15 +33,6 @@ async def create_post(request: Request):
     # 400, 422 - postImageUrl 검증 (선택적)
     post_image_url = body.get("postImageUrl")
     if post_image_url is not None:
-        # None이 아니면 유효성 검사
-        if not isinstance(post_image_url, str):
-            raise HTTPException(
-                status_code=400,
-                detail=response_schema(
-                    message=utils.error_message.invalid_input("parameter"),
-                    data=None,
-                ),
-            )
         post_image_url = validate_post_image_url(post_image_url)
 
     try:
@@ -141,15 +132,6 @@ async def update_post(post_id: int, request: Request):
     # 400, 422 - postImageUrl 검증 (선택적)
     post_image_url = body.get("postImageUrl")
     if post_image_url is not None:
-        # None이 아니면 유효성 검사
-        if not isinstance(post_image_url, str):
-            raise HTTPException(
-                status_code=400,
-                detail=response_schema(
-                    message=utils.error_message.invalid_input("parameter"),
-                    data=None,
-                ),
-            )
         post_image_url = validate_post_image_url(post_image_url)
 
     # 403

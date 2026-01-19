@@ -35,15 +35,6 @@ async def create_user(request: Request):
     # 400, 422 - 프로필 이미지 URL 검증 (선택적)
     profile_image_url = body.get("profileImageUrl")
     if profile_image_url is not None:
-        # None이 아니면 유효성 검사
-        if not isinstance(profile_image_url, str):
-            raise HTTPException(
-                status_code=400,
-                detail=response_schema(
-                    message=utils.error_message.invalid_input("parameter"),
-                    data=None,
-                ),
-            )
         profile_image_url = validate_profile_image_url(profile_image_url)
 
     # 409
@@ -267,15 +258,6 @@ async def update_user_profile_image_url(user_id: int, request: Request):
     # 400, 422 - 프로필 이미지 URL 검증 (선택적)
     profile_image_url = body.get("profileImageUrl")
     if profile_image_url is not None:
-        # None이 아니면 유효성 검사
-        if not isinstance(profile_image_url, str):
-            raise HTTPException(
-                status_code=400,
-                detail=response_schema(
-                    message=utils.error_message.invalid_input("parameter"),
-                    data=None,
-                ),
-            )
         profile_image_url = validate_profile_image_url(profile_image_url)
 
     # 403

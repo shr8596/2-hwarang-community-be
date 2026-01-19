@@ -3,9 +3,6 @@ from utils import constants
 
 # 닉네임 유효성 검사 함수
 def validate_nickname(nickname: str) -> bool:
-    # nickname: str이지만 타입힌트는 강제성이 없으므로 None 체크도 필요
-    if nickname is None:
-        return False
 
     # 공백 없어야
     if " " in nickname:

@@ -1,7 +1,7 @@
 from fastapi import HTTPException
 from utils.response_schema import response_schema
 import utils.error_message
-from utils.validator import email_validator, password_validator, nickname_validator, title_validator, content_validator, post_image_url_validator, user_id_validator, post_id_validator, comment_id_validator, offset_validator, limit_validator
+from utils.validator import email_validator, password_validator, nickname_validator, title_validator, content_validator, post_image_url_validator, profile_image_url_validator, user_id_validator, post_id_validator, comment_id_validator, offset_validator, limit_validator
 
 
 def validate_email(email: str) -> str:
@@ -126,6 +126,14 @@ def validate_profile_image_url(profile_image_url: str) -> str:
             status_code=400,
             detail=response_schema(
                 message=utils.error_message.invalid_input("parameter"),
+                data=None,
+            ),
+        )
+    if not profile_image_url_validator.validate_profile_image_url(profile_image_url): # 422 - 프로필 이미지 URL 형식 잘못됨
+        raise HTTPException(
+            status_code=422,
+            detail=response_schema(
+                message=utils.error_message.invalid_input_format("profile_image_url"),
                 data=None,
             ),
         )
