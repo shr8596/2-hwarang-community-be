@@ -1,9 +1,10 @@
-from fastapi import Request, HTTPException
+from fastapi import Request, HTTPException, Depends
 from fastapi.responses import JSONResponse
 from utils.response_schema import response_schema
 from utils.success_message import successfully
 import utils.error_message
 from utils.validator.request_validator import validate_title, validate_content, validate_post_image_url, validate_post_id, validate_offset, validate_limit
+from dependencies.auth_dependency import get_current_user
 
 # 게시글 임시 데이터
 post_model = {
@@ -20,8 +21,11 @@ post_model = {
 }
 
 # 게시글 작성
-# 405, 429 검증은 라우터의 Depends에서 처리
-async def create_post(request: Request):
+# 401, 405, 429 검증은 라우터의 Depends에서 처리
+async def create_post(
+    request: Request,
+    current_user: dict = Depends(get_current_user)
+):
     body = await request.json()
 
     # 400, 422 - title 검증
@@ -35,6 +39,9 @@ async def create_post(request: Request):
     if post_image_url is not None:
         post_image_url = validate_post_image_url(post_image_url)
 
+    # 인증된 사용자 정보
+    user_id = current_user["user_data"]["userId"]
+
     try:
         # TODO: 실제 DB에 게시글 생성 : 추후 구현
         return JSONResponse(
@@ -43,6 +50,7 @@ async def create_post(request: Request):
                 message=successfully("post_created"),
                 data={
                     "postId": "1",
+                    "userId": user_id,
                     "title": title,
                     "content": content,
                 },
@@ -59,8 +67,11 @@ async def create_post(request: Request):
 
 # 게시글 전체 목록 조회
 # 401, 405, 429 검증은 라우터의 Depends에서 처리
-async def read_posts(request: Request, offset: int, limit: int):
-
+async def read_posts(
+    offset: int,
+    limit: int,
+    current_user: dict = Depends(get_current_user)
+):
     # 400, 422 - offset 검증
     offset = validate_offset(offset)
 
@@ -92,9 +103,11 @@ async def read_posts(request: Request, offset: int, limit: int):
 
 # 게시글 상세 조회
 # 401, 405, 429 검증은 라우터의 Depends에서 처리
-async def read_post(post_id: int, request: Request):
-
-    # 400, 422 - post_id 검증
+async def read_post(
+    post_id: int,
+    current_user: dict = Depends(get_current_user)
+):
+    # post_id 검증 (400, 422)
     post_id = validate_post_id(post_id)
 
     try:
@@ -116,8 +129,12 @@ async def read_post(post_id: int, request: Request):
         )
 
 # 게시글 수정
-# 405, 429 검증은 라우터의 Depends에서 처리
-async def update_post(post_id: int, request: Request):
+# 401, 405, 429 검증은 라우터의 Depends에서 처리
+async def update_post(
+    post_id: int,
+    request: Request,
+    current_user: dict = Depends(get_current_user)
+):
     body = await request.json()
 
     # 400, 422 - post_id 검증
@@ -136,6 +153,9 @@ async def update_post(post_id: int, request: Request):
 
     # 403
     # TODO: 본인이 작성한 게시글이 아닌 경우 권한 없음 : 추후 구현
+    # current_user_id = current_user["user_data"]["userId"]
+    # if post_author_id != current_user_id:
+    #     raise HTTPException(status_code=403, detail=...)
 
     # 404
     # TODO: 존재하지 않는 게시글인 경우 : 추후 구현
@@ -164,13 +184,18 @@ async def update_post(post_id: int, request: Request):
 
 # 게시글 삭제
 # 401, 405, 429 검증은 라우터의 Depends에서 처리
-async def delete_post(post_id: int, request: Request):
-
-    # 400, 422 - post_id 검증
+async def delete_post(
+    post_id: int,
+    current_user: dict = Depends(get_current_user)
+):
+    # post_id 검증 (400, 422)
     post_id = validate_post_id(post_id)
 
     # 403
     # TODO: 본인이 작성한 게시글이 아닌 경우 권한 없음 : 추후 구현
+    # current_user_id = current_user["user_data"]["userId"]
+    # if post_author_id != current_user_id:
+    #     raise HTTPException(status_code=403, detail=...)
 
     # 404
     # TODO: 존재하지 않는 게시글인 경우 : 추후 구현
@@ -195,9 +220,11 @@ async def delete_post(post_id: int, request: Request):
 
 # 게시글 좋아요 추가
 # 401, 405, 429 검증은 라우터의 Depends에서 처리
-async def like_post(post_id: int, request: Request):
-
-    # 400, 422 - post_id 검증
+async def like_post(
+    post_id: int,
+    current_user: dict = Depends(get_current_user)
+):
+    # post_id 검증 (400, 422)
     post_id = validate_post_id(post_id)
 
     # 403
@@ -226,9 +253,11 @@ async def like_post(post_id: int, request: Request):
 
 # 게시글 좋아요 제거
 # 401, 405, 429 검증은 라우터의 Depends에서 처리
-async def unlike_post(post_id: int, request: Request):
-
-    # 400, 422 - post_id 검증
+async def unlike_post(
+    post_id: int,
+    current_user: dict = Depends(get_current_user)
+):
+    # post_id 검증 (400, 422)
     post_id = validate_post_id(post_id)
 
     # 403

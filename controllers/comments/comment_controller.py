@@ -1,9 +1,12 @@
-from fastapi import Request, HTTPException
+from fastapi import Request, HTTPException, Depends
 from fastapi.responses import JSONResponse
 from utils.response_schema import response_schema
 from utils.success_message import successfully
 import utils.error_message
-from utils.validator.request_validator import validate_content, validate_comment_id, validate_post_id, validate_offset, validate_limit
+from utils.validator.request_validator import (
+    validate_content, validate_comment_create_request, validate_comment_list_params, validate_comment_modify_params
+)
+from dependencies.auth_dependency import get_current_user
 
 # 댓글 임시 데이터
 comment_model = {
@@ -17,14 +20,18 @@ comment_model = {
 
 # 댓글 작성
 # 401, 405, 429 검증은 라우터의 Depends에서 처리
-async def create_comment(post_id: int, request: Request):
+async def create_comment(
+    post_id: int,
+    request: Request,
+    current_user: dict = Depends(get_current_user)
+):
     body = await request.json()
 
-    # 400, 422 - post_id 검증
-    post_id = validate_post_id(post_id)
+    # 모든 유효성 검증을 통합 함수로 처리 (400, 422)
+    post_id, content = validate_comment_create_request(post_id, body)
 
-    # 400, 422 - content 검증
-    content = validate_content(body.get("content"))
+    # 인증된 사용자 정보
+    user_id = current_user["user_data"]["userId"]
 
     try:
         # TODO: 실제 DB에 댓글 생성 : 추후 구현
@@ -35,6 +42,7 @@ async def create_comment(post_id: int, request: Request):
                 data={
                     "commentId": "1",
                     "postId": post_id,
+                    "userId": user_id,
                     "content": content,
                 },
             ),
@@ -50,16 +58,14 @@ async def create_comment(post_id: int, request: Request):
 
 # 댓글 전체 목록 조회
 # 401, 405, 429 검증은 라우터의 Depends에서 처리
-async def read_comments(post_id: int, request: Request, offset: int, limit: int):
-
-    # 400, 422 - post_id 검증
-    post_id = validate_post_id(post_id)
-
-    # 400, 422 - offset 검증
-    offset = validate_offset(offset)
-
-    # 400, 422 - limit 검증
-    limit = validate_limit(limit)
+async def read_comments(
+    post_id: int,
+    offset: int,
+    limit: int,
+    current_user: dict = Depends(get_current_user)
+):
+    # 모든 유효성 검증을 통합 함수로 처리 (400, 422)
+    post_id, offset, limit = validate_comment_list_params(post_id, offset, limit)
 
     # 404
     # TODO: 존재하지 않는 게시글인 경우 : 추후 구현
@@ -89,20 +95,23 @@ async def read_comments(post_id: int, request: Request, offset: int, limit: int)
 
 # 댓글 수정
 # 401, 405, 429 검증은 라우터의 Depends에서 처리
-async def update_comment(comment_id: int, post_id: int, request: Request):
+async def update_comment(
+    comment_id: int,
+    post_id: int,
+    request: Request,
+    current_user: dict = Depends(get_current_user)
+):
     body = await request.json()
 
-    # 400, 422 - post_id 검증
-    post_id = validate_post_id(post_id)
-
-    # 400, 422 - comment_id 검증
-    comment_id = validate_comment_id(comment_id)
-
-    # 400, 422 - content 검증
+    # 모든 유효성 검증을 통합 함수로 처리 (400, 422)
+    comment_id, post_id = validate_comment_modify_params(comment_id, post_id)
     content = validate_content(body.get("content"))
 
     # 403
     # TODO: 본인이 작성한 댓글이 아닌 경우 권한 없음 : 추후 구현
+    # current_user_id = current_user["user_data"]["userId"]
+    # if comment_author_id != current_user_id:
+    #     raise HTTPException(status_code=403, detail=...)
 
     # 404
     # TODO: 존재하지 않는 댓글인 경우 : 추후 구현
@@ -130,16 +139,19 @@ async def update_comment(comment_id: int, post_id: int, request: Request):
 
 # 댓글 삭제
 # 401, 405, 429 검증은 라우터의 Depends에서 처리
-async def delete_comment(comment_id: int, post_id: int, request: Request):
-
-    # 400, 422 - post_id 검증
-    post_id = validate_post_id(post_id)
-
-    # 400, 422 - comment_id 검증
-    comment_id = validate_comment_id(comment_id)
+async def delete_comment(
+    comment_id: int,
+    post_id: int,
+    current_user: dict = Depends(get_current_user)
+):
+    # 모든 유효성 검증을 통합 함수로 처리 (400, 422)
+    comment_id, post_id = validate_comment_modify_params(comment_id, post_id)
 
     # 403
     # TODO: 본인이 작성한 댓글이 아닌 경우 권한 없음 : 추후 구현
+    # current_user_id = current_user["user_data"]["userId"]
+    # if comment_author_id != current_user_id:
+    #     raise HTTPException(status_code=403, detail=...)
 
     # 404
     # TODO: 존재하지 않는 댓글인 경우 : 추후 구현

@@ -311,3 +311,87 @@ def validate_limit(limit: int) -> int:
             ),
         )
     return limit
+
+def validate_email_not_duplicate(email: str, mock_users: dict) -> None:
+    if email in mock_users: # 409 - 이메일 중복
+        raise HTTPException(
+            status_code=409,
+            detail=response_schema(
+                message=utils.error_message.duplicate_email,
+                data=None,
+            ),
+        )
+
+def validate_nickname_not_duplicate(nickname: str, mock_users: dict) -> None:
+    for user in mock_users.values():
+        if user.get("userNickname") == nickname: # 409 - 닉네임 중복
+            raise HTTPException(
+                status_code=409,
+                detail=response_schema(
+                    message=utils.error_message.duplicate_nickname,
+                    data=None,
+                ),
+            )
+
+def check_login_credentials(email: str, password: str, mock_users: dict, verify_password_func) -> dict:
+    user = mock_users.get(email)
+    if not user: # 401 - 사용자 없음
+        raise HTTPException(
+            status_code=401,
+            detail=response_schema(
+                message=utils.error_message.invalid_credentials,
+                data=None,
+            ),
+        )
+    if not verify_password_func(password, user["password"]): # 401 - 비밀번호 틀림
+        raise HTTPException(
+            status_code=401,
+            detail=response_schema(
+                message=utils.error_message.invalid_credentials,
+                data=None,
+            ),
+        )
+    return user
+
+def check_user_permission(user_id: int, current_user: dict) -> None:
+    current_user_id = current_user["user_data"]["userId"]
+    if str(user_id) != current_user_id: # 403 - 본인이 아님
+        raise HTTPException(
+            status_code=403,
+            detail=response_schema(
+                message=utils.error_message.permission_denied,
+                data=None,
+            ),
+        )
+
+def check_user_exists(email: str, mock_users: dict) -> dict:
+    user = mock_users.get(email)
+    if not user: # 404 - 사용자 없음
+        raise HTTPException(
+            status_code=404,
+            detail=response_schema(
+                message=utils.error_message.user_not_found,
+                data=None,
+            ),
+        )
+    return user
+
+def validate_comment_create_request(post_id: int, body: dict) -> tuple[int, str]:
+    """댓글 작성 요청 유효성 검증"""
+    validated_post_id = validate_post_id(post_id)
+    content = validate_content(body.get("content"))
+    return validated_post_id, content
+
+def validate_comment_list_params(post_id: int, offset: int, limit: int) -> tuple[int, int, int]:
+    """댓글 목록 조회 파라미터 유효성 검증"""
+    validated_post_id = validate_post_id(post_id)
+    validated_offset = validate_offset(offset)
+    validated_limit = validate_limit(limit)
+    return validated_post_id, validated_offset, validated_limit
+
+def validate_comment_modify_params(comment_id: int, post_id: int) -> tuple[int, int]:
+    """댓글 수정/삭제 파라미터 유효성 검증"""
+    validated_comment_id = validate_comment_id(comment_id)
+    validated_post_id = validate_post_id(post_id)
+    return validated_comment_id, validated_post_id
+
