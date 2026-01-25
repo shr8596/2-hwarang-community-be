@@ -7,12 +7,16 @@ def invalid_input(field_name: str) -> str:
 
 # 401
 authentication_required = "authentication_required"
+unauthorized = "unauthorized"
+invalid_credentials = "invalid_credentials"
 
 # 403
-def permission_denied(action: str) -> str:
+permission_denied = "permission_denied"
+def permission_denied_to(action: str) -> str:
     return f"permission_denied_to_{action}"
 
 # 404
+user_not_found = "user_not_found"
 def not_found(field_name: str) -> str:
     return f"{field_name}_not_found"
 
@@ -20,6 +24,8 @@ def not_found(field_name: str) -> str:
 http_method_not_supported = "http_method_not_supported"
 
 # 409
+duplicate_email = "duplicate_email"
+duplicate_nickname = "duplicate_nickname"
 def is_already_in_use(field_name: str) -> str:
     return f"{field_name}_is_already_in_use"
 
