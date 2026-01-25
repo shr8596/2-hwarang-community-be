@@ -9,6 +9,11 @@ import utils.constants
 # - 새로운 객체 추가 시 기존 코드 수정 없이 확장 가능
 def _create_method_checker(allowed_method: str):
     def method_checker(request: Request):
+        # OPTIONS 메서드는 CORS preflight 요청이므로 허용
+        # 브라우저가 실제 요청 전에 자동으로 보내는 사전 검증 요청
+        if request.method == "OPTIONS":
+            return
+
         if request.method != allowed_method:
             raise HTTPException(
                 status_code=405,

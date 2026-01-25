@@ -10,6 +10,10 @@ request_counts = defaultdict(list)
 
 
 async def rate_limiter(request: Request):
+    # OPTIONS 메서드는 CORS preflight 요청이므로 rate limiting 건너뛰기
+    if request.method == "OPTIONS":
+        return
+
     client_ip = request.client.host
     now = datetime.now()
 
