@@ -1,39 +1,40 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from starlette.middleware.sessions import SessionMiddleware
 import uvicorn
 from routes import api_router
 
 app = FastAPI()
 
-# CORS 설정
-# 각다른 도메인에서 실행되는 프론트엔드(React, Vue 등)가 이 API를 호출할 수 있도록 허용
+# CORS 설정 (먼저 추가)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",      # React 기본 포트
-        "http://localhost:5173",      # Vite 기본 포트
-        "http://localhost:8080",      # Vue 기본 포트
-        "http://127.0.0.1:3000",
-        "http://127.0.0.1:5173",
-        "http://127.0.0.1:8080",
-    ],
-    allow_credentials=True,           # 쿠키/인증 정보 허용
-    allow_methods=["*"],              # 모든 HTTP 메서드 허용 (GET, POST, PUT, DELETE 등)
-    allow_headers=["*"],              # 모든 헤더 허용 (Authorization, Content-Type 등)
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
-# 세션 미들웨어 설정
-# 세션을 사용하여 사용자 상태를 유지하고자 할 때 필요
-app.add_middleware(
-    SessionMiddleware,
-    secret_key="yourSecretKey",
-    max_age=24 * 60 * 60,
-    same_site="lax",
-    https_only=False,
-)
+# 요청 로깅 미들웨어 (나중에 추가)
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    print(f"\n{'='*80}", flush=True)
+    print(f"[요청] {request.method} {request.url.path}", flush=True)
+    print(f"클라이언트: {request.client.host}", flush=True)
+    print(f"{'='*80}\n", flush=True)
+
+    response = await call_next(request)
+
+    print(f"[응답] {request.method} {request.url.path} → {response.status_code}\n", flush=True)
+    return response
+
+
+# 헬스체크 엔드포인트
+@app.get("/api/health")
+async def health_check():
+    return {"status": "ok", "message": "BE server is running"}
 
 app.include_router(api_router)
 
 if __name__ == "__main__":
+    print("서버 시작: http://localhost:8000")
     uvicorn.run(app, host="0.0.0.0", port=8000)
